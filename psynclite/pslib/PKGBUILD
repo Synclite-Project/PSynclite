@@ -1,0 +1,63 @@
+# Maintainer: Scorpius, Jar
+pkgname=psynclite
+pkgver=4.6.2
+pkgrel=3
+pkgdesc="Advanced system management utility with AI integration for Arch Linux Hyprland"
+arch=('any')
+url="https://github.com/ScorpiusRL/PSynclite-Jar-System"
+license=('GPL3')
+depends=(
+  'python'
+  'eww'
+  'brightnessctl'
+  'playerctl'
+  'grim'
+  'wlogout'
+  'swww'
+  'libnotify'
+  'python-gobject'
+  'fastfetch'
+)
+source=(
+    "PSynclite"
+    "__init__.py"
+    "ai_module.py"
+    "backup_manager.py"
+    "config.py"
+    "dashboard.py"
+    "formatters.py"
+    "helpers.py"
+    "media_controls.py"
+    "notifications.py"
+    "system_utils.py"
+)
+sha256sums=(
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+    'SKIP'
+)
+noextract=("pslib.tar.gz")
+
+package() {
+    install -Dm755 "$srcdir/PSynclite" "$pkgdir/usr/bin/pscli"
+
+    install -dm755 "$pkgdir/usr/bin/pslib"
+    cp -r "$srcdir/__init__.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/ai_module.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/backup_manager.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/config.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/dashboard.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/formatters.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/helpers.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/media_controls.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/notifications.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/system_utils.py" "$pkgdir/usr/bin/pslib/"
+}

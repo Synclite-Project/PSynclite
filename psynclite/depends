@@ -1,0 +1,20 @@
+yay:
+    waybar
+    grimblast
+    wlogout
+    eww
+
+pacman:
+    python
+    python-requests
+    playerctl
+    libnotify
+    dunst
+    pulseaudio
+    swww
+    brightnessctl
+    curl
+    jq
+    acpi
+    grim
+    nerd-fonts

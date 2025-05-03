@@ -6,7 +6,9 @@ A utility for managing programs and packages in the Arch Linux environment with 
 Clone the git repository and build using makepkg:
 
 ```sh
-git clone git@github.com:<yourName>/<repo>.git
+git clone https://github.com/Synclite-Project/PSynclite
+cd PSynclite/psynclite/pslib
+makepkg -si
 ```
 
 ## Info
@@ -17,10 +19,6 @@ The full list of options for PSynclite:
 | --- | --- |
 | **Synclite is the main control system** | --- |
 | `-h` `--help` | Displays a message about all possible options |
-| `-i` `--init` | Initialization |
-| **Dash and Widgets** | --- |
-| `-od` `--open-dash` | Open system dash (if you have *[eww](https://github.com/elkowar/eww)*) |
-| `-cd` `--close-dash` | Close system dash (if you have *[eww](https://github.com/elkowar/eww)*) |
 | **System and its properties** | --- |
 | `-sp` `--system-prop` | *[fastfetch](https://github.com/fastfetch-cli/fastfetch)* alternative + fastfetch |
 | `-pp` `--pac-pkg` | Display installed pacman packages |
@@ -36,10 +34,9 @@ The full list of options for PSynclite:
 | `-mpp` `--media-pp` | Manage media - play\pause |
 | `-mpn` `--media-pn` | Manage media - next song |
 | `-mppr` `--media-ppr` | Manage media - previous song |
-| `-wp` `--wallpaper` | Set random wallpaper |
+| `-wp` `--wallpaper` | Set random wallpaper from ~/Images |
 | `-ps` `--printscreen` | Make screen shot |
-| `-bg` `--battery-guard` | Service for monitoring battery |
 | **AI and its properties** | --- |
 | `"any request"` | Make request to AI with curent model |
-| **Optional funclions** | --- |
-| `-T "any text"` | In development |
+| `-am` `--ai-model` | Set AI model |
+| `-agk` `--ai-get-key` | Set AI API key |

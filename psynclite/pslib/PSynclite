@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+import sys
+
+from pslib import aimodel, aiapi, backup
+from pslib import helpSynclite, get_api_key
+from pslib import vol_inc, vol_dec, playpause, playernext, playerprevious, duration_minsec, duration_sec, position_minsec, position_sec
+from pslib import system, pacman_pkg, wlogout, toggleWaybar, bri_inc, bri_dec, wallpaper, printscreen
+from pslib import show_notification_history, COLORS
+
+def main():
+    if len(sys.argv) < 2:
+        helpSynclite()
+        return
+
+    arg1 = sys.argv[1]
+    commands = {
+        '-h': helpSynclite,
+        '--help': helpSynclite,
+        '--system-prop': system,
+        '-sp': system,
+        '--vol-inc': vol_inc,
+        '-vi': vol_inc,
+        '--vol-dec': vol_dec,
+        '-vd': vol_dec,
+        '--bri-inc': bri_inc,
+        '-bi': bri_inc,
+        '--bri-dec': bri_dec,
+        '-bd': bri_dec,
+        '--mus-dur-minsec': duration_minsec,
+        '-mdms': duration_minsec,
+        '--mus-dur-sec': duration_sec,
+        '-mds': duration_sec,
+        '--mus-pos-minsec': position_minsec,
+        '-mpms': position_minsec,
+        '--mus-pos-sec': position_sec,
+        '-mps': position_sec,
+        '--pac-pkg': pacman_pkg,
+        '-pp': pacman_pkg,
+        '--wlogout': wlogout,
+        '-wo': wlogout,
+        '--backup': backup,
+        '-bu': backup,
+        '--wallpaper': wallpaper,
+        '-wp': wallpaper,
+        '--tog-waybar': toggleWaybar,
+        '-tw': toggleWaybar,
+        '--media-pp': playpause,
+        '-mpp': playpause,
+        '--media-pn': playernext,
+        '-mpn': playernext,
+        '--media-ppr': playerprevious,
+        '-mppr': playerprevious,
+        '--printscreen': printscreen,
+        '-ps': printscreen,
+	    '--show-notifyhistory': show_notification_history,
+	    '-snh': show_notification_history,
+	    '--ai-mod': aimodel,
+	    '-am': aimodel,
+		'--ai-get-key': get_api_key,
+		'-agk': get_api_key,
+    }
+
+    if arg1 in commands:
+        commands[arg1]()
+    else:
+        if ' ' in arg1:
+            print(f"{COLORS['green']}Go to request to AI{COLORS['reset']}")
+            aiapi(arg1)
+        else:
+            print(f"{COLORS['green']}The {arg1} is not a valid argument{COLORS['reset']}")
+            helpSynclite()
+
+if __name__ == "__main__":
+    main()
