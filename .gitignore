@@ -1,3 +1,10 @@
+# Custom
+
+pkg/
+src/
+*pkg.tar.zst
+PSynclite.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

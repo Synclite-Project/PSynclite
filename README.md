@@ -13,30 +13,43 @@ makepkg -si
 
 ## Info
 
-The full list of options for PSynclite:
+Executing the command:
 
-| Options | Description |
+```sh
+pscli [option] [argument 1] [argument 2]
+```
+
+Basic commands (1st level):
+
+| Command | Description |
 | --- | --- |
-| **Synclite is the main control system** | --- |
-| `-h` `--help` | Displays a message about all possible options |
-| **System and its properties** | --- |
-| `-sp` `--system-prop` | *[fastfetch](https://github.com/fastfetch-cli/fastfetch)* alternative + fastfetch |
-| `-pp` `--pac-pkg` | Display installed pacman packages |
-| `-wo` `--wlogout` | Open wlogout menu with style 3 |
-| `-bu` `--backup` | Make backup paths system |
-| `-snh` `--show-notifyhistory` | Show notification history |
-| **Volume and Brightness Control** | --- |
-| `-vi` `--vol-inc` | Increament volume in 5% |
-| `-vd` `--vol-dec` | Decreament volume in 5% |
-| `-bi` `--bri-inc` | Increament brightness in 5% |
-| `-bd` `--bri-dec` | Increament brightness in 5% |
-| **Media and System Control** | --- |
-| `-mpp` `--media-pp` | Manage media - play\pause |
-| `-mpn` `--media-pn` | Manage media - next song |
-| `-mppr` `--media-ppr` | Manage media - previous song |
-| `-wp` `--wallpaper` | Set random wallpaper from ~/Images |
-| `-ps` `--printscreen` | Make screen shot |
-| **AI and its properties** | --- |
-| `"any request"` | Make request to AI with curent model |
-| `-am` `--ai-model` | Set AI model |
-| `-agk` `--ai-get-key` | Set AI API key |
+| `-h`, `--help` | Show help menu |
+| `-sp`, `--system-prop` | Display system properties |
+| `-pp`, `--pac-pkg` | Display pacman package information |
+| `-wo`, `--wlogout` | Start wlogout menu |
+| `-bu`, `--backup` | Utility for backup files and directories |
+| `-wp`, `--wallpaper` | Set random wallpaper |
+| `-tw`, `--tog-waybar` | Toggle waybar (on/off) |
+| `-ps`, `--printscreen` | Make screenshot |
+| `-snh`, `--show-notifyhistory` | Display a notification history from pscli |
+
+Commands with second-level parameters:
+
+| Command | Second-level parameter | Description |
+| --- | --- | --- |
+| `-V` | `inc`, `dec` | Increase or decrease volume by 5% |
+| `-B` | `inc`, `dec` | Increase or decrease brightness by 5% |
+| `-M` | `duration`, `position`, `player` | Defines the duration of the player. Defines the player's position. Controls the player |
+| `-Ai` | `model`, `get-key` | Configuring AI |
+
+Command with third-level parameters:
+
+| Command | Second-level parameter | Third-level parameter | Description |
+| --- | --- | --- | --- |
+| `-M` | `duration` | `minsec` | Determines the duration of the current track in format min:sec |
+| --- | --- | `seconds` | ... in format seconds |
+| --- | `position` | `minsec` | Determines the position of the current track in format min:sec |
+| --- | --- | `seconds` | ... in format seconds |
+| --- | `player` | `toggle` | Toggle player (play/pause) |
+| --- | --- | `previous` | Switches to the previous track |
+| --- | --- | `next` | Switches to the next track |
