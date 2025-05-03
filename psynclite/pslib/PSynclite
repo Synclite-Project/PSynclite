@@ -1,74 +1,69 @@
 #!/usr/bin/env python3
 import sys
-
-from pslib import aimodel, aiapi, backup
-from pslib import helpSynclite, get_api_key
-from pslib import vol_inc, vol_dec, playpause, playernext, playerprevious, duration_minsec, duration_sec, position_minsec, position_sec
-from pslib import system, pacman_pkg, wlogout, toggleWaybar, bri_inc, bri_dec, wallpaper, printscreen
-from pslib import show_notification_history, COLORS
+import pslib
 
 def main():
     if len(sys.argv) < 2:
-        helpSynclite()
+        pslib.helpSynclite()
         return
 
     arg1 = sys.argv[1]
+    arg2 = sys.argv[2] if len(sys.argv) > 2 else None
+    arg3 = sys.argv[3] if len(sys.argv) > 3 else None
+
     commands = {
-        '-h': helpSynclite,
-        '--help': helpSynclite,
-        '--system-prop': system,
-        '-sp': system,
-        '--vol-inc': vol_inc,
-        '-vi': vol_inc,
-        '--vol-dec': vol_dec,
-        '-vd': vol_dec,
-        '--bri-inc': bri_inc,
-        '-bi': bri_inc,
-        '--bri-dec': bri_dec,
-        '-bd': bri_dec,
-        '--mus-dur-minsec': duration_minsec,
-        '-mdms': duration_minsec,
-        '--mus-dur-sec': duration_sec,
-        '-mds': duration_sec,
-        '--mus-pos-minsec': position_minsec,
-        '-mpms': position_minsec,
-        '--mus-pos-sec': position_sec,
-        '-mps': position_sec,
-        '--pac-pkg': pacman_pkg,
-        '-pp': pacman_pkg,
-        '--wlogout': wlogout,
-        '-wo': wlogout,
-        '--backup': backup,
-        '-bu': backup,
-        '--wallpaper': wallpaper,
-        '-wp': wallpaper,
-        '--tog-waybar': toggleWaybar,
-        '-tw': toggleWaybar,
-        '--media-pp': playpause,
-        '-mpp': playpause,
-        '--media-pn': playernext,
-        '-mpn': playernext,
-        '--media-ppr': playerprevious,
-        '-mppr': playerprevious,
-        '--printscreen': printscreen,
-        '-ps': printscreen,
-	    '--show-notifyhistory': show_notification_history,
-	    '-snh': show_notification_history,
-	    '--ai-mod': aimodel,
-	    '-am': aimodel,
-		'--ai-get-key': get_api_key,
-		'-agk': get_api_key,
+        '-h': pslib.helpSynclite,
+        '--help': pslib.helpSynclite,
+        '--system-prop': pslib.system,
+        '-sp': pslib.system,
+        '--pac-pkg': pslib.pacman_pkg,
+        '-pp': pslib.pacman_pkg,
+        '--wlogout': pslib.wlogout,
+        '-wo': pslib.wlogout,
+        '--backup': pslib.backup,
+        '-bu': pslib.backup,
+        '--wallpaper': pslib.wallpaper,
+        '-wp': pslib.wallpaper,
+        '--tog-waybar': pslib.toggleWaybar,
+        '-tw': pslib.toggleWaybar,
+        '--printscreen': pslib.printscreen,
+        '-ps': pslib.printscreen,
+	    '--show-notifyhistory': pslib.show_notification_history,
+	    '-snh': pslib.show_notification_history,
+    }
+
+    multi_level_commands = {
+        '-V': {'inc': pslib.vol_inc, 'dec': pslib.vol_dec},
+        '-B': {'inc': pslib.bri_inc, 'dec': pslib.bri_dec},
+        '-Ai': {'model': pslib.aimodel, 'get-key': pslib.get_api_key},
+        '-M': {
+            'duration': {'minsec': pslib.duration_minsec, 'seconds': pslib.duration_sec},
+            'position': {'minsec': pslib.position_minsec, 'seconds': pslib.position_sec},
+            'player': {'toggle': pslib.playpause, 'previous': pslib.playerprevious, 'next': pslib.playernext}
+        }
     }
 
     if arg1 in commands:
         commands[arg1]()
+    elif arg1 in multi_level_commands:
+        if arg2 in multi_level_commands[arg1]:
+            if isinstance(multi_level_commands[arg1][arg2], dict):
+                if arg3 in multi_level_commands[arg1][arg2]:
+                    multi_level_commands[arg1][arg2][arg3]()
+                else:
+                    print(f"{pslib.COLORS['red']}Have you entered an invalid argument or not at all? Argument is {arg3}{pslib.COLORS['reset']}")
+            else:
+                multi_level_commands[arg1][arg2]()
+        else:
+            print(f"{pslib.COLORS['red']}Have you entered an invalid argument or not at all? Argument is {arg2}{pslib.COLORS['reset']}")
+            pslib.helpSynclite()
     else:
         if ' ' in arg1:
-            print(f"{COLORS['green']}Go to request to AI{COLORS['reset']}")
-            aiapi(arg1)
+            print(f"{pslib.COLORS['green']}Go to request to AI{pslib.COLORS['reset']}")
+            pslib.aiapi(arg1)
         else:
-            print(f"{COLORS['green']}The {arg1} is not a valid argument{COLORS['reset']}")
-            helpSynclite()
+            print(f"{pslib.COLORS['green']}Have you entered an invalid argument or not at all? Argument is {arg1}{pslib.COLORS['reset']}")
+            pslib.helpSynclite()
 
 if __name__ == "__main__":
     main()
