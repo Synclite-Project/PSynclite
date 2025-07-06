@@ -4,6 +4,7 @@ pkg/
 src/
 *pkg.tar.zst
 PSynclite.txt
+Test/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

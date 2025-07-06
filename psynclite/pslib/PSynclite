@@ -14,6 +14,8 @@ def main():
     commands = {
         '-h': pslib.helpSynclite,
         '--help': pslib.helpSynclite,
+        '-v': pslib.verison,
+        '--version': pslib.verison,
         '--system-prop': pslib.system,
         '-sp': pslib.system,
         '--pac-pkg': pslib.pacman_pkg,

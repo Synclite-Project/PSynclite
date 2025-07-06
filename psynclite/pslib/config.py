@@ -1,4 +1,5 @@
 import os
+import configparser
 
 COLORS = {
     'reset': '\033[0m',

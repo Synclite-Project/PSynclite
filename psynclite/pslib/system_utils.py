@@ -6,6 +6,9 @@ from .notifications import log_notification
 from .ai_module import load_ai_model
 from .helpers import log
 
+def verison():
+    ver = subprocess.getoutput('pacman -Q psynclite')
+    print(ver)
 
 def system():
     """Get system information
@@ -142,3 +145,6 @@ def printscreen():
         print(f"Error taking screenshot: {e}")
         log("Error taking screenshot", 1, False)
     log("Screenshot taken successfully", 0, False)
+
+def init():
+    path = os.path.expanduser("~/.config/psynclite")
