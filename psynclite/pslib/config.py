@@ -1,3 +1,8 @@
+import os
+import configparser
+import shutil
+from .data import FILE_CONFIG
+
 def read_config(file_path):
     config = configparser.ConfigParser()
     config.read(file_path)
@@ -24,14 +29,16 @@ def check_parameter(config, section, key, value):
     else:
         return f"Section '{section}' not found"
     
+def set_value(file_path, config, section, parametr, value):
+    config.set(section, parametr, value)
+    with open(file_path, 'w') as f:
+        config.write(f)
     
 CONFIG = read_config(FILE_CONFIG)
 
 
 def init():
     """Initialize psynclite by creating the config directory and config file."""
-    import shutil
-    import configparser
 
     config_dir = os.path.expanduser('~/.config/psynclite')
     os.path.join(config_dir, 'logs.log')
@@ -55,8 +62,7 @@ def init():
         'Initialization': 'true'
     }
     config['AI'] = {
-        'Model': 'Value1',
-        'Apikey': 'Value2',
+        
     }
 
     # Write the config file

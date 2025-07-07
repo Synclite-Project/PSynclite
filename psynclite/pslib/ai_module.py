@@ -2,15 +2,17 @@ import requests
 import os
 import json
 from .helpers import log
-from .data import COLORS, AI_CONFIG_FILE, API_KEY_FILE
+from .data import COLORS, FILE_CONFIG
 from .formatters import MarkdownFormatter
+from .config import get_value, set_value, check_parameter, CONFIG
 
 def get_api_key():
     """Запрашивает и сохраняет API-ключ для io.net"""
-    # Проверяем, существует ли уже файл с ключом
-    if os.path.exists(API_KEY_FILE):
-        with open(API_KEY_FILE, 'r') as f:
-            api_key = f.read().strip()
+    
+    isApikey = check_parameter(CONFIG, 'AI', 'apikey', 'ExpectedValue')
+    
+    if isApikey == False or isApikey == True:
+        api_key = get_value(CONFIG, 'AI', 'Apikey')
         if api_key:
             print("API-ключ найден.")
             return api_key
@@ -19,8 +21,7 @@ def get_api_key():
 
     api_key = input("Введите API-ключ для io.net: ")
 
-    with open(API_KEY_FILE, 'w') as f:
-        f.write(api_key)
+    set_value(FILE_CONFIG, CONFIG, 'AI', 'Apikey', api_key)
 
     print("API-ключ сохранен.")
     return api_key
@@ -31,8 +32,7 @@ def load_ai_model():
     """Loading save AI model"""
     default_model = "mistralai/Mistral-Large-Instruct-2411"
     try:
-        with open(AI_CONFIG_FILE, 'r') as f:
-            return f.read().strip()
+        model = get_value(CONFIG, 'AI', 'model')
     except FileNotFoundError:
         log("AI model file not found, install with -am", 1, False)
         return default_model
@@ -81,9 +81,7 @@ def aimodel():
 
 
     # Save in config
-    os.makedirs(os.path.dirname(AI_CONFIG_FILE), exist_ok=True)
-    with open(AI_CONFIG_FILE, 'w') as f:
-        f.write(selected_model)
+    set_value(FILE_CONFIG, CONFIG, 'AI', 'Model', selected_model)
 
     print(f"\n{COLORS['green']}Model {selected_model} is saved!{COLORS['reset']}")
     log("Model saved", 0, False)

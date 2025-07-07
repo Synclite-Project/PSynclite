@@ -14,11 +14,14 @@ COLORS = {
     'gray': '\033[90m'
 }
 
+# path to file config
 FILE_CONFIG = os.path.expanduser('~/.config/psynclite/config.conf')
+# path to notification history file
 NOTIFICATION_HISTORY_FILE = os.path.expanduser('~/.config/psynclite/notifications.json')
+# notification categories
 NOTIFICATION_CATEGORIES = ['System', 'Sound', 'Brightness', 'Media', 'Battery', 'Network', 'Backup', 'Info']
-AI_CONFIG_FILE = os.path.expanduser('~/.config/psynclite/ai_model.conf')
+# path to config directory
 CONFIG_DIR = os.path.expanduser('~/.config/psynclite')
+# path to log file
 LOG_FILE = os.path.expanduser('~/.config/psynclite/logs.log')
-API_KEY_FILE = os.path.expanduser('~/.config/psynclite/api_key.txt')
         

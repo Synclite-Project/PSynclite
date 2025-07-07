@@ -6,6 +6,7 @@ from .media_controls import vol_inc, vol_dec, playpause, playernext, playerprevi
 from .system_utils import system, pacman_pkg, wlogout, toggleWaybar, bri_inc, bri_dec, wallpaper, printscreen, verison
 from .notifications import show_notification_history
 from .data import COLORS, LOG_FILE
+from .config import init, get_value, set_value, check_parameter, CONFIG
 
 __all__ = [
     "aimodel",
