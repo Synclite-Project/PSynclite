@@ -1,5 +1,5 @@
 import logging
-from .config import COLORS
+from .config import COLORS, LOG_FILE
 
 def log(meslog, code, notify, mes=''):
     """Functions message logging"""
