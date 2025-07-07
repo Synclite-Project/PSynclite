@@ -2,29 +2,30 @@ import requests
 import os
 import json
 from .helpers import log
-from .config import COLORS, AI_CONFIG_FILE, API_KEY_FILE
+from .data import COLORS, AI_CONFIG_FILE, API_KEY_FILE
 from .formatters import MarkdownFormatter
 
 def get_api_key():
     """Запрашивает и сохраняет API-ключ для io.net"""
-    # # Проверяем, существует ли уже файл с ключом
-    # if os.path.exists(API_KEY_FILE):
-    #     with open(API_KEY_FILE, 'r') as f:
-    #         api_key = f.read().strip()
-    #     if api_key:
-    #         print("API-ключ найден.")
-    #         return api_key
-    #     else:
-    #         print("API-ключ не найден в файле. Пожалуйста, введите новый.")
+    # Проверяем, существует ли уже файл с ключом
+    if os.path.exists(API_KEY_FILE):
+        with open(API_KEY_FILE, 'r') as f:
+            api_key = f.read().strip()
+        if api_key:
+            print("API-ключ найден.")
+            return api_key
+        else:
+            print("API-ключ не найден в файле. Пожалуйста, введите новый.")
 
-    # api_key = input("Введите API-ключ для io.net: ")
+    api_key = input("Введите API-ключ для io.net: ")
 
-    # with open(API_KEY_FILE, 'w') as f:
-    #     f.write(api_key)
+    with open(API_KEY_FILE, 'w') as f:
+        f.write(api_key)
 
-    # print("API-ключ сохранен.")
-    # return api_key
-    pass
+    print("API-ключ сохранен.")
+    return api_key
+    
+    
 
 def load_ai_model():
     """Loading save AI model"""

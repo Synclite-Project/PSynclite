@@ -1,25 +1,32 @@
-import os
-import configparser
+def read_config(file_path):
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    return config
 
-COLORS = {
-    'reset': '\033[0m',
-    'red': '\033[31m',
-    'yellow': '\033[33m',
-    'green': '\033[32m',
-    'blue': '\033[34m',
-    'cyan': '\033[36m',
-    'bold': '\033[1m',
-    'italic': '\033[3m',
-    'underline': '\033[4m',
-    'gray': '\033[90m'
-}
+def get_value(config, section, key):
+    if config.has_section(section):
+        if config.has_option(section, key):
+            return config.get(section, key)
+        else:
+            return f"Key '{key}' not found in section '{section}'"
+    else:
+        return f"Section '{section}' not found"
 
-NOTIFICATION_HISTORY_FILE = os.path.expanduser('~/.config/psynclite/notifications.json')
-NOTIFICATION_CATEGORIES = ['System', 'Sound', 'Brightness', 'Media', 'Battery', 'Network', 'Backup', 'Info']
-AI_CONFIG_FILE = os.path.expanduser('~/.config/psynclite/ai_model.conf')
-CONFIG_DIR = os.path.expanduser('~/.config/psynclite')
-LOG_FILE = os.path.expanduser('~/.config/psynclite/logs.log')
-API_KEY_FILE = os.path.expanduser('~/.config/psynclite/api_key.txt')
+def check_parameter(config, section, key, value):
+    if config.has_section(section):
+        if config.has_option(section, key):
+            if config.get(section, key) == value:
+                return True
+            else:
+                return False
+        else:
+            return f"Key '{key}' not found in section '{section}'"
+    else:
+        return f"Section '{section}' not found"
+    
+    
+CONFIG = read_config(FILE_CONFIG)
+
 
 def init():
     """Initialize psynclite by creating the config directory and config file."""
@@ -27,25 +34,29 @@ def init():
     import configparser
 
     config_dir = os.path.expanduser('~/.config/psynclite')
-
-    # Проверка существует ли директория
+    os.path.join(config_dir, 'logs.log')
+    
+    # check
     if os.path.exists(config_dir):
-        # Удалть её, если да
-        shutil.rmtree(config_dir)
+        #shutil.rmtree(config_dir) # remove
+        print("You already have a config directory")
+        return 0
 
-    # Create the directory
+    # make a dir
     os.makedirs(config_dir, exist_ok=True)
 
-    # Create the config file
     config_file = os.path.join(config_dir, 'config.conf')
-    os.path.join(config_dir, 'logs.log')
+    
     config = configparser.ConfigParser()
 
     
     # Add standard configparser entries
+    config['GLOBAL'] = {
+        'Initialization': 'true'
+    }
     config['AI'] = {
-        'model': 'Value1',
-        'apikey': 'Value2',
+        'Model': 'Value1',
+        'Apikey': 'Value2',
     }
 
     # Write the config file

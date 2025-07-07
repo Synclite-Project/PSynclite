@@ -1,5 +1,5 @@
 import re
-from .config import COLORS
+from .data import COLORS
 
 class MarkdownFormatter:
     """Markdown formatter for AI requests"""

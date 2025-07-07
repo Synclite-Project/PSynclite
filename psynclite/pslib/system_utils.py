@@ -1,7 +1,7 @@
 import subprocess
 import os
 import random
-from .config import COLORS
+from .data import COLORS
 from .notifications import log_notification
 from .ai_module import load_ai_model
 from .helpers import log
