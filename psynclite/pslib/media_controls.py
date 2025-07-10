@@ -1,5 +1,5 @@
 import subprocess
-from .config import COLORS
+from .data import COLORS
 from .notifications import log_notification
 from .helpers import log
 

@@ -1,9 +1,10 @@
 import logging
-from .config import COLORS
+from .data import COLORS, LOG_FILE
 
 def log(meslog, code, notify, mes=''):
     """Functions message logging"""
     from .notifications import log_notification
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s', handlers=[logging.FileHandler(LOG_FILE)])
     if code == 0 and notify == True:
         log_notification('Info',mes, 'normal')
         logging.info(meslog)

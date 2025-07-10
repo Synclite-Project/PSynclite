@@ -1,7 +1,7 @@
 import shutil
 import os
 import time
-from .config import COLORS, CONFIG_DIR
+from .data import COLORS, CONFIG_DIR
 from .helpers import log
 
 def backup():

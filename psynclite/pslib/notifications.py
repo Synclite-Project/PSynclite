@@ -4,7 +4,7 @@ import os
 import subprocess
 import time
 from collections import defaultdict
-from .config import NOTIFICATION_HISTORY_FILE, COLORS
+from .data import NOTIFICATION_HISTORY_FILE, COLORS
 
 def log_notification(category, message, urgency='normal'):
     """Log notification and display it"""

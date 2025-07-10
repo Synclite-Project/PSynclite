@@ -1,6 +1,6 @@
 # Maintainer: Scorpius, Jar
 pkgname=psynclite
-pkgver=4.6.7
+pkgver=4.6.10
 pkgrel=3
 pkgdesc="Advanced system management utility with AI integration for Arch Linux Hyprland"
 arch=('any')
@@ -30,8 +30,10 @@ source=(
     "media_controls.py"
     "notifications.py"
     "system_utils.py"
+    "data.py"
 )
 sha256sums=(
+    'SKIP'
     'SKIP'
     'SKIP'
     'SKIP'
@@ -58,4 +60,5 @@ package() {
     cp -r "$srcdir/media_controls.py" "$pkgdir/usr/bin/pslib/"
     cp -r "$srcdir/notifications.py" "$pkgdir/usr/bin/pslib/"
     cp -r "$srcdir/system_utils.py" "$pkgdir/usr/bin/pslib/"
+    cp -r "$srcdir/data.py" "$pkgdir/usr/bin/pslib/"
 }
