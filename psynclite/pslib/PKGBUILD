@@ -1,6 +1,6 @@
 # Maintainer: Scorpius, Jar
 pkgname=psynclite
-pkgver=4.6.8
+pkgver=4.6.10
 pkgrel=3
 pkgdesc="Advanced system management utility with AI integration for Arch Linux Hyprland"
 arch=('any')
