@@ -3,36 +3,33 @@ import os
 import json
 from .helpers import log
 from .data import COLORS, FILE_CONFIG
-from .formatters import MarkdownFormatter
 from .config import get_value, set_value, check_parameter, CONFIG
 
-def get_api_key():
-    """Запрашивает и сохраняет API-ключ для io.net"""
-    
+
+def get_api_key() -> str:
+    """Request and save API key for io.net"""
     isApikey = check_parameter(CONFIG, 'AI', 'apikey', 'ExpectedValue')
-    
-    if isApikey == False or isApikey == True:
+
+    if isApikey in (False, True):
         api_key = get_value(CONFIG, 'AI', 'Apikey')
         if api_key:
             print("API-ключ найден.")
             return api_key
         else:
-            print("API-ключ не найден в файле. Пожалуйста, введите новый.")
+            print("API-ключ не найден. Введите новый:")
 
-    api_key = input("Введите API-ключ для io.net: ")
-
+    api_key = input("Введите API-ключ для io.net: ").strip()
     set_value(FILE_CONFIG, CONFIG, 'AI', 'Apikey', api_key)
-
-    print("API-ключ сохранен.")
+    print("API-ключ сохранён.")
     return api_key
-    
-    
 
-def load_ai_model():
-    """Loading save AI model"""
-    default_model = "mistralai/Mistral-Large-Instruct-2411"
+
+def load_ai_model() -> str:
+    """Load saved AI model or use default"""
+    default_model = "deepseek-ai/DeepSeek-R1-0528"
     try:
         model = get_value(CONFIG, 'AI', 'model')
+        return model or default_model
     except FileNotFoundError:
         log("AI model file not found, install with -am", 1, False)
         return default_model
@@ -41,108 +38,92 @@ def load_ai_model():
         log("Error loading AI model", 1, False)
         return default_model
 
+
 def aimodel():
     """Model choice for AI requests"""
     api_key = get_api_key()
     url = "https://api.intelligence.io.solutions/api/v1/models"
-    headers = {
-        "accept": "application/json",
-        "Authorization": f"Bearer {api_key}",
-    }
+    headers = {"accept": "application/json", "Authorization": f"Bearer {api_key}"}
 
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        print(f"{COLORS['red']}Ошибка при получении списка моделей: {e}{COLORS['reset']}")
+        log(f"Failed to fetch models: {e}", 1, False)
+        return 1
 
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    data = response.json()
+    models = [m['id'] for m in data.get('data', [])]
+    if not models:
+        print(f"{COLORS['yellow']}Модели не найдены.{COLORS['reset']}")
+        return 1
 
-    print(f"\n{COLORS['green']}Available models:{COLORS['reset']}")
-    models = [model['id'] for model in data.get('data', [])]
-
-    # Numeric list
+    print(f"\n{COLORS['green']}Доступные модели:{COLORS['reset']}")
     for i, model in enumerate(models, 1):
         print(f"{i}. {model}")
 
-    # Choice model
     while True:
         try:
-            choice = int(input("\nInput model number: "))
+            choice = int(input("\nВведите номер модели: "))
             if 1 <= choice <= len(models):
-                selected_model = models[choice-1]
+                selected_model = models[choice - 1]
                 break
-            else:
-                print(f"{COLORS['red']}Invalid number!{COLORS['reset']}")
+            print(f"{COLORS['red']}Некорректный номер!{COLORS['reset']}")
         except ValueError:
-            print(f"{COLORS['red']}Input number!{COLORS['reset']}")
-            log("Invalid input", 1, False)
+            print(f"{COLORS['red']}Введите число!{COLORS['reset']}")
         except KeyboardInterrupt:
-            print(f"\n{COLORS['red']}User aborted request{COLORS['reset']}")
-            log("User aborted request", 1, False)
-            exit(1)
+            print(f"\n{COLORS['red']}Выбор модели отменён пользователем.{COLORS['reset']}")
+            return
 
-
-    # Save in config
     set_value(FILE_CONFIG, CONFIG, 'AI', 'Model', selected_model)
-
-    print(f"\n{COLORS['green']}Model {selected_model} is saved!{COLORS['reset']}")
+    print(f"\n{COLORS['green']}Модель {selected_model} сохранена!{COLORS['reset']}")
     log("Model saved", 0, False)
 
-def aiapi(argument):
-    """Handling AI queries with full Markdown support"""
+
+def aiapi(argument) -> None:
+    """Send AI request and print plain response"""
     api_key = get_api_key()
-    current_model = load_ai_model()
+    model = load_ai_model()
     url = "https://api.intelligence.io.solutions/api/v1/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}"}
-    formatter = MarkdownFormatter()
 
-    print(f"{COLORS['yellow']}Используемая модель: {current_model}{COLORS['reset']}")
+    print(f"{COLORS['yellow']}Используемая модель: {model}{COLORS['reset']}")
+
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "You are Jar — a helpful Linux assistant. "
+                    "Respond clearly and concisely, avoid Markdown formatting."
+                ),
+            },
+            {"role": "user", "content": argument},
+        ],
+    }
+
     try:
-        data = {
-            "model": current_model,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are Jar - helpful assistant. Format all responses using Markdown. "
-                        "You can use these elements:\n"
-                        "- Headers (#, ##)\n"
-                        "- Lists (ordered/unordered)\n"
-                        "- **Bold** and *italic* text\n"
-                        "- Code blocks (```) and `inline code`\n"
-                        "- Links\n"
-                        "- Blockquotes (>)\n"
-                        "You always must answer clear and understandable, as for a beginner"
-                    )
-                },
-                {"role": "user", "content": argument}
-            ]
-        }
-
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
         result = response.json()
 
-        if 'choices' in result and result['choices']:
-            raw_answer = result['choices'][0]['message']['content']
-            formatted_answer = formatter.format(raw_answer)
-
-            print(f"\n{COLORS['green']}AI Response:{COLORS['reset']}\n")
-            for line in formatted_answer.split('\n'):
-                print(f"  {line}")
-            print()
-
+        if "choices" in result and result["choices"]:
+            answer = result["choices"][0]["message"]["content"]
+            print(f"\n{COLORS['green']}Ответ AI:{COLORS['reset']}\n")
+            print(answer.strip(), "\n")
         else:
-            print(f"{COLORS['red']}Error: Invalid API response{COLORS['reset']}")
+            print(f"{COLORS['red']}Ошибка: Пустой ответ от API.{COLORS['reset']}")
 
     except requests.exceptions.RequestException as e:
-        print(f"{COLORS['red']}Error network: {e}{COLORS['reset']}")
-        log("NetworkError", 1, True, "Couldn't send neural network request, check the Internet")
-        exit(1)
+        print(f"{COLORS['red']}Ошибка сети: {e}{COLORS['reset']}")
+        log("NetworkError", 1, True, "Ошибка сети при запросе к API")
     except json.JSONDecodeError:
-        print(f"{COLORS['red']}Error decoding response{COLORS['reset']}")
-        log("Error decoding response", 1, True, "Couldn't get a response from AI")
-        exit(1)
+        print(f"{COLORS['red']}Ошибка декодирования ответа API.{COLORS['reset']}")
+        log("DecodeError", 1, True, "Ошибка декодирования JSON")
     except Exception as e:
-        print(f"{COLORS['red']}Unexpected error: {e}{COLORS['reset']}")
-        log("Unexpected error", 1, True, "Couldn't get a response from AI")
-        exit(1)
-    log("AI response is good", 0, True, "The AI's response has been received")
+        print(f"{COLORS['red']}Неизвестная ошибка: {e}{COLORS['reset']}")
+        log(f"Unexpected error: {e}", 1, True, "Неизвестная ошибка при запросе")
+    else:
+        log("AI response received successfully", 0, True, "Ответ от AI получен")

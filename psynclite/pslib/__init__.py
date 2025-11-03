@@ -3,7 +3,7 @@ from .ai_module import aimodel, aiapi, get_api_key
 from .backup_manager import backup
 from .helpers import helpSynclite, log
 from .media_controls import vol_inc, vol_dec, playpause, playernext, playerprevious, duration_minsec, duration_sec, position_minsec, position_sec
-from .system_utils import system, pacman_pkg, wlogout, toggleWaybar, bri_inc, bri_dec, wallpaper, printscreen, verison
+from .system_utils import system, pacman_pkg, wlogout, toggleWaybar, bri_inc, bri_dec, wallpaper, printscreen, version, inc_productivity, chTheme
 from .notifications import show_notification_history
 from .data import COLORS, LOG_FILE
 from .config import init, get_value, set_value, check_parameter, CONFIG
@@ -35,5 +35,7 @@ __all__ = [
     "log",
     "get_api_key",
     "version",
-    "init"
+    "inc_productivity",
+    "init",
+    "chTheme"
 ]

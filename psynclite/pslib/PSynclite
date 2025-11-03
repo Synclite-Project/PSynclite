@@ -17,11 +17,13 @@ def main():
     #     print('You have not initialized. Use command: pscli init')
     #     return 1
 
+    
+
     commands = {
         '-h': pslib.helpSynclite,
         '--help': pslib.helpSynclite,
-        '-v': pslib.verison,
-        '--version': pslib.verison,
+        '-v': pslib.version,
+        '--version': pslib.version,
         '--system-prop': pslib.system,
         '-sp': pslib.system,
         '--pac-pkg': pslib.pacman_pkg,
@@ -38,6 +40,9 @@ def main():
         '-ps': pslib.printscreen,
 	    '--show-notifyhistory': pslib.show_notification_history,
 	    '-snh': pslib.show_notification_history,
+        '--inc-prod': pslib.inc_productivity,
+        '-ip': pslib.inc_productivity,
+        '-ct': pslib.chTheme,
         'init': pslib.init
     }
 

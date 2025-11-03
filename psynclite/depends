@@ -9,9 +9,9 @@ pacman:
     python-requests
     playerctl
     libnotify
-    dunst
     pulseaudio
     swww
+    swaync
     brightnessctl
     curl
     jq

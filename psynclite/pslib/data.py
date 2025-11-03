@@ -1,5 +1,4 @@
 import os
-import configparser
 
 COLORS = {
     'reset': '\033[0m',
@@ -14,14 +13,23 @@ COLORS = {
     'gray': '\033[90m'
 }
 
-# path to file config
-FILE_CONFIG = os.path.expanduser('~/.config/psynclite/config.conf')
-# path to notification history file
-NOTIFICATION_HISTORY_FILE = os.path.expanduser('~/.config/psynclite/notifications.json')
-# notification categories
-NOTIFICATION_CATEGORIES = ['System', 'Sound', 'Brightness', 'Media', 'Battery', 'Network', 'Backup', 'Info']
-# path to config directory
+# Base configuration directory
 CONFIG_DIR = os.path.expanduser('~/.config/psynclite')
-# path to log file
-LOG_FILE = os.path.expanduser('~/.config/psynclite/logs.log')
-        
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
+# Individual file paths (fully backward-compatible)
+FILE_CONFIG = os.path.join(CONFIG_DIR, 'config.conf')
+NOTIFICATION_HISTORY_FILE = os.path.join(CONFIG_DIR, 'notifications.json')
+LOG_FILE = os.path.join(CONFIG_DIR, 'logs.log')
+
+# Notification categories
+NOTIFICATION_CATEGORIES = [
+    'System', 'Sound', 'Brightness', 'Media', 'Battery',
+    'Network', 'Backup', 'Info'
+]
+
+# Ensure required files exist
+for path in (FILE_CONFIG, NOTIFICATION_HISTORY_FILE, LOG_FILE):
+    if not os.path.exists(path):
+        with open(path, 'a'):
+            pass

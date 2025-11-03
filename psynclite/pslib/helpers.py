@@ -1,7 +1,7 @@
 import logging
 from .data import COLORS, LOG_FILE
 
-def log(meslog, code, notify, mes=''):
+def log(meslog, code, notify, mes='') -> None:
     """Functions message logging"""
     from .notifications import log_notification
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(module)s - %(message)s', handlers=[logging.FileHandler(LOG_FILE)])
@@ -15,12 +15,14 @@ def log(meslog, code, notify, mes=''):
         logging.exception(meslog)
     elif code == 1 and notify == False:
         logging.exception(meslog)
-    exit(0)
 
-def helpSynclite():
+def helpSynclite() -> None:
     """Show help message for PSynclite"""
     help_text = f"""
 
+    usage: pscli [argument] [option]
+    arguments:
+    
     {COLORS['yellow']}----------- Synclite is the main control system ----------{COLORS['reset']}
 
     {COLORS['green']}-h --help         			               Show this message{COLORS['reset']}
