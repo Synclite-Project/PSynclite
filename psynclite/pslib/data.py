@@ -27,9 +27,3 @@ NOTIFICATION_CATEGORIES = [
     'System', 'Sound', 'Brightness', 'Media', 'Battery',
     'Network', 'Backup', 'Info'
 ]
-
-# Ensure required files exist
-for path in (FILE_CONFIG, NOTIFICATION_HISTORY_FILE, LOG_FILE):
-    if not os.path.exists(path):
-        with open(path, 'a'):
-            pass

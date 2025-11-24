@@ -1,83 +1,212 @@
 #!/usr/bin/env python3
+import argparse
 import sys
-import pslib
 import os
+import pslib
+from pslib.data import COLORS
+
+# --- КАРТА ПЕРЕНАПРАВЛЕНИЙ (LEGACY MAP) ---
+# Мы вручную заменяем короткие флаги на полные команды перед тем, как отдать их argparse.
+# Это позволяет использовать команды, начинающиеся с '-', что argparse обычно запрещает.
+ARG_MAP = {
+    # Простые команды
+    '-sp': 'system-prop',
+    '-pp': 'pac-pkg',
+    '-wo': 'wlogout',
+    '-bu': 'backup',
+    '-wp': 'wallpaper',
+    '-tw': 'tog-waybar',
+    '-ps': 'printscreen',
+    '-snh': 'show-notifyhistory',
+    '-ip': 'inc-prod',
+    '-ct': 'chtheme',
+    
+    # Сложные команды
+    '-V': 'volume',
+    '-B': 'brightness',
+    '-Ai': 'ai-settings',
+    '-M': 'media',
+}
+
+def run_ai_command(query):
+    """Fallback для отправки запроса в AI"""
+    print(f"{COLORS['green']}Go to request to AI...{COLORS['reset']}")
+    pslib.aiapi(query)
+
+def get_custom_help_text():
+    """Генерирует красивый текст помощи с примерами"""
+    return f"""
+{COLORS['yellow']}=========== COMMANDS CHEAT SHEET ==========={COLORS['reset']}
+
+{COLORS['cyan']}System & Tools:{COLORS['reset']}
+  pscli system-prop        (alias: -sp)    Show system info
+  pscli pac-pkg            (alias: -pp)    Show installed packages
+  pscli backup             (alias: -bu)    Backup system
+  pscli wlogout            (alias: -wo)    Logout menu
+  pscli wallpaper          (alias: -wp)    Set random wallpaper
+  pscli printscreen        (alias: -ps)    Take screenshot
+  pscli tog-waybar         (alias: -tw)    Toggle Waybar
+  pscli show-notifyhistory (alias: -snh)   Show notifications
+  pscli chtheme            (alias: -ct)    Change theme
+
+{COLORS['cyan']}Volume Control (-V):{COLORS['reset']}
+  pscli -V inc             Increase volume (+5%)
+  pscli -V dec             Decrease volume (-5%)
+
+{COLORS['cyan']}Brightness Control (-B):{COLORS['reset']}
+  pscli -B inc             Increase brightness
+  pscli -B dec             Decrease brightness
+
+{COLORS['cyan']}Media Control (-M):{COLORS['reset']}
+  pscli -M player toggle   Play/Pause
+  pscli -M player next     Next track
+  pscli -M player previous Previous track
+  pscli -M duration minsec Duration (MM:SS)
+  pscli -M position minsec Position (MM:SS)
+
+{COLORS['cyan']}AI Settings (-Ai):{COLORS['reset']}
+  pscli -Ai model          Change AI model
+  pscli -Ai get-key        Show API key
+"""
+
+def create_parser():
+    # RawDescriptionHelpFormatter позволяет нам вставить форматированный текст в epilog
+    parser = argparse.ArgumentParser(
+        prog="pscli",
+        description=f"{COLORS['yellow']}PSynclite: Advanced system management utility{COLORS['reset']}",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=get_custom_help_text()
+    )
+    
+    parser.add_argument('-v', '--version', action='store_true', help='Show version')
+
+    # Создаем подпарсеры
+    # Обратите внимание: мы НЕ используем aliases=['-sp'] здесь, чтобы избежать конфликтов с флагами.
+    # Маппинг делается вручную в main().
+    subparsers = parser.add_subparsers(dest='command', metavar='COMMAND', help='Select a command (see cheat sheet below)')
+
+    # === Хелпер ===
+    def add_cmd(name, func, help_desc):
+        p = subparsers.add_parser(name, help=help_desc)
+        p.set_defaults(func=func)
+
+    # === Простые команды ===
+    add_cmd('init', pslib.init, 'Initialize configuration')
+    add_cmd('system-prop', pslib.system, 'System info')
+    add_cmd('pac-pkg', pslib.pacman_pkg, 'Show packages')
+    add_cmd('wlogout', pslib.wlogout, 'Logout menu')
+    add_cmd('backup', pslib.backup, 'Backup system')
+    add_cmd('wallpaper', pslib.wallpaper, 'Set random wallpaper')
+    add_cmd('tog-waybar', pslib.toggleWaybar, 'Toggle Waybar')
+    add_cmd('printscreen', pslib.printscreen, 'Take screenshot')
+    add_cmd('show-notifyhistory', pslib.show_notification_history, 'Notification history')
+    add_cmd('inc-prod', pslib.inc_productivity, 'Productivity mode')
+    add_cmd('chtheme', pslib.chTheme, 'Change theme')
+
+    # === Вложенные команды ===
+
+    # Volume
+    vol_parser = subparsers.add_parser('volume', help='Volume control')
+    vol_sub = vol_parser.add_subparsers(dest='action', metavar='ACTION')
+    vol_sub.add_parser('inc', help='Increase').set_defaults(func=pslib.vol_inc)
+    vol_sub.add_parser('dec', help='Decrease').set_defaults(func=pslib.vol_dec)
+
+    # Brightness
+    bri_parser = subparsers.add_parser('brightness', help='Brightness control')
+    bri_sub = bri_parser.add_subparsers(dest='action', metavar='ACTION')
+    bri_sub.add_parser('inc', help='Increase').set_defaults(func=pslib.bri_inc)
+    bri_sub.add_parser('dec', help='Decrease').set_defaults(func=pslib.bri_dec)
+
+    # AI Settings
+    ai_parser = subparsers.add_parser('ai-settings', help='AI settings')
+    ai_sub = ai_parser.add_subparsers(dest='action', metavar='ACTION')
+    ai_sub.add_parser('model', help='Change model').set_defaults(func=pslib.aimodel)
+    ai_sub.add_parser('get-key', help='Show API Key').set_defaults(func=pslib.get_api_key)
+
+    # Media
+    media_parser = subparsers.add_parser('media', help='Media control')
+    media_sub = media_parser.add_subparsers(dest='category', metavar='CATEGORY')
+
+    # Media -> Player
+    player_p = media_sub.add_parser('player', help='Player controls')
+    player_act = player_p.add_subparsers(dest='action', metavar='ACTION')
+    player_act.add_parser('toggle', help='Play/Pause').set_defaults(func=pslib.playpause)
+    player_act.add_parser('next', help='Next').set_defaults(func=pslib.playernext)
+    player_act.add_parser('previous', help='Previous').set_defaults(func=pslib.playerprevious)
+
+    # Media -> Duration
+    dur_p = media_sub.add_parser('duration', help='Get duration')
+    dur_act = dur_p.add_subparsers(dest='format', metavar='FORMAT')
+    dur_act.add_parser('minsec', help='Format: MM:SS').set_defaults(func=pslib.duration_minsec)
+    dur_act.add_parser('seconds', help='Format: Seconds').set_defaults(func=pslib.duration_sec)
+
+    # Media -> Position
+    pos_p = media_sub.add_parser('position', help='Get position')
+    pos_act = pos_p.add_subparsers(dest='format', metavar='FORMAT')
+    pos_act.add_parser('minsec', help='Format: MM:SS').set_defaults(func=pslib.position_minsec)
+    pos_act.add_parser('seconds', help='Format: Seconds').set_defaults(func=pslib.position_sec)
+
+    return parser
 
 def main():
-    
-    if len(sys.argv) < 2:
-        pslib.helpSynclite()
+    # 1. AI Fallback (Legacy)
+    if len(sys.argv) > 1 and ' ' in sys.argv[1]:
+        run_ai_command(sys.argv[1])
         return
 
-    arg1 = sys.argv[1]
-    arg2 = sys.argv[2] if len(sys.argv) > 2 else None
-    arg3 = sys.argv[3] if len(sys.argv) > 3 else None
-
-    # if not os.path.exists('~/.config/psynclite') and arg1 != 'init':
-    #     print('You have not initialized. Use command: pscli init')
-    #     return 1
-
+    # 2. ПОДМЕНА АРГУМЕНТОВ (Pre-processing)
+    original_args = sys.argv[1:]
+    processed_args = []
     
-
-    commands = {
-        '-h': pslib.helpSynclite,
-        '--help': pslib.helpSynclite,
-        '-v': pslib.version,
-        '--version': pslib.version,
-        '--system-prop': pslib.system,
-        '-sp': pslib.system,
-        '--pac-pkg': pslib.pacman_pkg,
-        '-pp': pslib.pacman_pkg,
-        '--wlogout': pslib.wlogout,
-        '-wo': pslib.wlogout,
-        '--backup': pslib.backup,
-        '-bu': pslib.backup,
-        '--wallpaper': pslib.wallpaper,
-        '-wp': pslib.wallpaper,
-        '--tog-waybar': pslib.toggleWaybar,
-        '-tw': pslib.toggleWaybar,
-        '--printscreen': pslib.printscreen,
-        '-ps': pslib.printscreen,
-	    '--show-notifyhistory': pslib.show_notification_history,
-	    '-snh': pslib.show_notification_history,
-        '--inc-prod': pslib.inc_productivity,
-        '-ip': pslib.inc_productivity,
-        '-ct': pslib.chTheme,
-        'init': pslib.init
-    }
-
-    multi_level_commands = {
-        '-V': {'inc': pslib.vol_inc, 'dec': pslib.vol_dec},
-        '-B': {'inc': pslib.bri_inc, 'dec': pslib.bri_dec},
-        '-Ai': {'model': pslib.aimodel, 'get-key': pslib.get_api_key},
-        '-M': {
-            'duration': {'minsec': pslib.duration_minsec, 'seconds': pslib.duration_sec},
-            'position': {'minsec': pslib.position_minsec, 'seconds': pslib.position_sec},
-            'player': {'toggle': pslib.playpause, 'previous': pslib.playerprevious, 'next': pslib.playernext}
-        }
-    }
-
-    if arg1 in commands:
-        commands[arg1]()
-    elif arg1 in multi_level_commands:
-        if arg2 in multi_level_commands[arg1]:
-            if isinstance(multi_level_commands[arg1][arg2], dict):
-                if arg3 in multi_level_commands[arg1][arg2]:
-                    multi_level_commands[arg1][arg2][arg3]()
-                else:
-                    print(f"{pslib.COLORS['red']}Have you entered an invalid argument or not at all? Argument is {arg3}{pslib.COLORS['reset']}")
-            else:
-                multi_level_commands[arg1][arg2]()
+    if original_args:
+        first_arg = original_args[0]
+        # Если первый аргумент - это наш старый шорткат, меняем его на полное имя
+        if first_arg in ARG_MAP:
+            processed_args.append(ARG_MAP[first_arg])
+            processed_args.extend(original_args[1:])
         else:
-            print(f"{pslib.COLORS['red']}Have you entered an invalid argument or not at all? Argument is {arg2}{pslib.COLORS['reset']}")
-            pslib.helpSynclite()
+            processed_args = original_args
+    
+    # 3. Создаем парсер
+    parser = create_parser()
+
+    # Ручная обработка --version
+    if '-v' in sys.argv or '--version' in sys.argv:
+        pslib.version()
+        return
+
+    # Если аргументов нет
+    if not processed_args:
+        parser.print_help()
+        return
+
+    # 4. Проверка инициализации
+    config_exists = os.path.exists(os.path.expanduser('~/.config/psynclite/config.conf'))
+    is_init = 'init' in processed_args
+    is_help = '-h' in processed_args or '--help' in processed_args
+
+    if not config_exists and not is_init and not is_help:
+         print(f"{COLORS['red']}You have not initialized. Use command: pscli init{COLORS['reset']}")
+         return
+
+    # 5. Парсинг
+    try:
+        args = parser.parse_args(processed_args)
+    except SystemExit:
+        # argparse сам выведет ошибку
+        return
+
+    # 6. Выполнение
+    if hasattr(args, 'func'):
+        try:
+            args.func()
+        except Exception as e:
+             print(f"{COLORS['red']}Execution error: {e}{COLORS['reset']}")
     else:
-        if ' ' in arg1:
-            print(f"{pslib.COLORS['green']}Go to request to AI{pslib.COLORS['reset']}")
-            pslib.aiapi(arg1)
-        else:
-            print(f"{pslib.COLORS['green']}Have you entered an invalid argument or not at all? Argument is {arg1}{pslib.COLORS['reset']}")
-            pslib.helpSynclite()
+        # Если ввели команду, но не подкоманду (например, просто 'pscli -M')
+        # Выводим справку для конкретной подкоманды
+        print(f"{COLORS['yellow']}Incomplete command.{COLORS['reset']}")
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

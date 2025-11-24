@@ -11,14 +11,14 @@ def read_config(file_path):
     config.read(file_path)
     return config
 
-def get_value(config, section, key): 
+def get_value(config, section, key) -> int: 
     if config.has_section(section): 
         if config.has_option(section, key): 
             return config.get(section, key) 
         else: 
-            return f"Key '{key}' not found in section '{section}'" 
+            return 1
     else: 
-        return f"Section '{section}' not found" 
+        return 2
     
 def check_parameter(config, section, key, value): 
     if config.has_section(section): 
@@ -50,21 +50,21 @@ def init():
 
         # если файл существует — уточнить у пользователя
         if os.path.exists(config_file):
-            print("⚙️  Файл конфигурации уже существует.")
-            choice = input("Пересоздать конфигурацию? (y/N): ").strip().lower()
+            print("The configuration file already exists.")
+            choice = input("Should I recreate the configuration? (y/N): ").strip().lower()
             if choice != 'y':
-                print("⏹  Инициализация отменена.")
+                print("Initialization has been canceled.")
                 return 0
             else:
-                print("🧹  Старый конфиг будет перезаписан.\n")
+                print("The old config will be overwritten.\n")
 
         os.makedirs(config_dir, exist_ok=True)
 
-        print("Добро пожаловать в установщик PSynclite!")
-        print("Эта утилита создаст базовую конфигурацию.\n")
+        print("Welcome to the PSynclite installer!")
+        print("This utility will create a basic configuration.\n")
 
-        apikey = input("Введите API-ключ io.net (опционально): ").strip()
-        backuppath = input("Введите путь для резервных копий (по умолчанию ~/.config/psynclite/): ").strip()
+        apikey = input("Enter the API key io.net (optional): ").strip()
+        backuppath = input("Enter the backup path (default is ~/.config/psynclite/): ").strip()
         if not backuppath:
             backuppath = os.path.expanduser('~/.config/psynclite/')
 
@@ -76,7 +76,7 @@ def init():
         with open(config_file, 'w') as f:
             config.write(f)
 
-        print(f"\n✅ Конфигурация успешно создана: {config_file}")
+        print(f"\nThe configuration has been created successfully: {config_file}")
         return 1
     except KeyboardInterrupt:
         return 0

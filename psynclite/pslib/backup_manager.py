@@ -16,7 +16,7 @@ def backup():
     # Если секции нет или путь некорректный — создаём дефолтный
     if not backup_path or "not found" in str(backup_path).lower():
         default_path = os.path.expanduser('~/.config/psynclite/')
-        print(f"{COLORS['yellow']}[!] Раздел [BACKUP] не найден, используется стандартный путь: {default_path}{COLORS['reset']}")
+        print(f"{COLORS['yellow']}[!] The [BACKUP] section was not found, the standard path is used: {default_path}{COLORS['reset']}")
         set_value(FILE_CONFIG, CONFIG, 'BACKUP', 'path', default_path)
         backup_path = default_path
 
@@ -30,14 +30,14 @@ def backup():
     try:
         os.makedirs(backup_dir, exist_ok=True)
     except Exception as e:
-        print(f"{COLORS['red']}Не удалось создать директорию бэкапов: {e}{COLORS['reset']}")
+        print(f"{COLORS['red']}Failed to create backup directory: {e}{COLORS['reset']}")
         log("Failed to create backup directory", 1, True, str(e))
         return
 
     # Ввод путей
-    paths_input = input(f"{COLORS['cyan']}Введите пути для бэкапа (через пробел): {COLORS['reset']}").strip()
+    paths_input = input(f"{COLORS['cyan']}Enter the backup paths (separated by a space): {COLORS['reset']}").strip()
     if not paths_input:
-        print(f"{COLORS['yellow']}Бэкап отменён: пути не указаны.{COLORS['reset']}")
+        print(f"{COLORS['yellow']}Backup canceled: paths are not specified.{COLORS['reset']}")
         log("Backup cancelled - no input paths", 1, False)
         return
 
@@ -47,10 +47,10 @@ def backup():
     for path in paths:
         try:
             if not os.path.exists(path):
-                raise FileNotFoundError(f"Путь не найден: {path}")
+                raise FileNotFoundError(f"Path not found: {path}")
 
             if os.path.commonpath([path, backup_dir]) == backup_dir:
-                raise ValueError("Попытка копирования каталога бэкапов внутрь самого себя")
+                raise ValueError("An attempt to copy the backup directory inside itself")
 
             dest = os.path.join(backup_dir, os.path.basename(path))
 
@@ -69,17 +69,17 @@ def backup():
     print(f"{COLORS['bold']}Backup location:{COLORS['reset']} {backup_dir}")
 
     if success:
-        print(f"\n{COLORS['green']}Успешно скопировано:{COLORS['reset']}")
+        print(f"\n{COLORS['green']}Copied successfully:{COLORS['reset']}")
         for item in success:
             print(f"  • {item}")
 
     if errors:
-        print(f"\n{COLORS['red']}Ошибки при копировании:{COLORS['reset']}")
+        print(f"\n{COLORS['red']}Copying errors:{COLORS['reset']}")
         for error in errors:
             print(f"  • {error}")
 
-    status = "успешно" if not errors else "с ошибками"
-    print(f"\n{COLORS['cyan']}Бэкап завершён {status}.{COLORS['reset']}")
+    status = "successfully" if not errors else "with errors"
+    print(f"\n{COLORS['cyan']}Backup completed  {status}.{COLORS['reset']}")
 
     if errors:
         log("Backup completed with errors", 1, True, f"{len(errors)} errors")
